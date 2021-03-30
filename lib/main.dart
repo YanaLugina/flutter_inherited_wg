@@ -33,16 +33,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int get counterValue => _counter;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-  void _decrementCounter() {
-    setState(() {
-      _counter--;
-    });
-  }
+  void _incrementCounter() => setState(() =>  _counter++);
+  void _decrementCounter() => setState(() => _counter--);
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +45,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: ListView(
         children: <Widget>[
-          AppRootWidget(),
+          MyInheritedWidget(
+              myState: this,
+            child: AppRootWidget(),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -68,12 +63,13 @@ class _MyHomePageState extends State<MyHomePage> {
 class AppRootWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final rootWidgetState = MyInheritedWidget.of(context).myState;
     return Card(
       elevation: 4.0,
       child: Column(
         children: <Widget>[
           Text('(Root Widget)', style: Theme.of(context).textTheme.display1),
-          Text('(0)', style: Theme.of(context).textTheme.display1),
+          Text('${rootWidgetState.counterValue}', style: Theme.of(context).textTheme.display1),
           SizedBox(height: 50,),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -91,21 +87,46 @@ class AppRootWidget extends StatelessWidget {
 class Counter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final rootWidgetState = MyInheritedWidget.of(context).myState;
     return Card(
       margin: EdgeInsets.all(4.0).copyWith(bottom: 32),
       color: Colors.yellowAccent,
       child: Column(
         children: <Widget>[
           Text('(Children Widget)'),
-          Text('(0)', style: Theme.of(context).textTheme.display1),
+          Text('(${rootWidgetState.counterValue})', style: Theme.of(context).textTheme.display1),
           ButtonBar(
             children: <Widget>[
-              IconButton(onPressed: () {}, icon: Icon(Icons.remove)),
-              IconButton(onPressed: () {}, icon: Icon(Icons.add)),
+              IconButton(
+                onPressed: () => rootWidgetState._decrementCounter(),
+                icon: Icon(Icons.remove),
+                color: Colors.red
+              ),
+              IconButton(
+                onPressed: () => rootWidgetState._incrementCounter(),
+                icon: Icon(Icons.add),
+                color: Colors.green,
+              ),
             ],
           )
         ],
       ),
     );
+  }
+}
+
+class MyInheritedWidget extends InheritedWidget {
+  final _MyHomePageState myState;
+
+  MyInheritedWidget({Key key, Widget child, @required this.myState})
+      : super(key: key, child: child);
+
+  @override
+  bool updateShouldNotify(MyInheritedWidget oldWidget) {
+    return this.myState.counterValue != oldWidget.myState.counterValue;
+  }
+
+  static MyInheritedWidget of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType();
   }
 }
