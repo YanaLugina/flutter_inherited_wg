@@ -13,7 +13,7 @@ class Counter extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Text('(Children Widget)'),
-          Text('(${rootWidgetState.counterValue})', style: Theme.of(context).textTheme.display1),
+          Text('(${rootWidgetState.counterValue})', style: Theme.of(context).textTheme.headline4),
           ButtonBar(
             children: <Widget>[
               IconButton(
